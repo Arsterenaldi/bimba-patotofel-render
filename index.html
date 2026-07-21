@@ -11,8 +11,8 @@
 <body>
   <main class="app">
     <section class="hero">
-      <p class="eyebrow">p5.js ASCII renderer</p>
-      <h1>Картинка в ASCII</h1>
+      <p class="eyebrow">Potatofel ASCII renderer</p>
+      <h1>Генератор текстового Васи 👀(ASCII)</h1>
       <p class="subtitle">
         Загрузи изображение, а браузер превратит его в рисунок из символов.
       </p>
@@ -25,11 +25,31 @@
 
     <section class="controls-card" aria-label="Настройки ASCII рендера">
       <div class="control">
+        <label for="platformSelect">
+          Куда отправлять
+          <span id="platformValue">Discord</span>
+        </label>
+        <select id="platformSelect">
+          <option value="discord" selected>Discord</option>
+          <option value="steam">Steam</option>
+          <option value="plain">Просто текст</option>
+        </select>
+      </div>
+
+      <div class="control">
         <label for="widthRange">
           Детализация
-          <span id="widthValue">130</span>
+          <span id="widthValue">80</span>
         </label>
-        <input id="widthRange" type="range" min="50" max="220" value="130" step="5">
+        <input id="widthRange" type="range" min="30" max="140" value="80" step="2">
+      </div>
+
+      <div class="control">
+        <label for="aspectRange">
+          Высота
+          <span id="aspectValue">50%</span>
+        </label>
+        <input id="aspectRange" type="range" min="35" max="85" value="50" step="1">
       </div>
 
       <div class="control">
@@ -60,12 +80,30 @@
         <input id="invertToggle" type="checkbox">
         Инвертировать символы
       </label>
+
+      <label class="toggle">
+        <input id="solidCharsToggle" type="checkbox" checked>
+        Без пустых краёв
+      </label>
+
+      <label class="toggle">
+        <input id="brailleToggle" type="checkbox">
+        Использовать Braille Pattern
+      </label>
+
+      <label class="toggle">
+        <input id="codeWrapToggle" type="checkbox" checked>
+        Моноширинная обёртка
+      </label>
     </section>
 
     <section class="preview-card">
       <div class="preview-header">
-        <span>ASCII Preview</span>
-        <button id="copyButton" type="button" disabled>Скопировать</button>
+        <div>
+          <span>ASCII Preview</span>
+          <small id="exportHint">Копируй через кнопку, чтобы сохранить моноширинный формат.</small>
+        </div>
+        <button id="copyButton" type="button" disabled>Скопировать для Discord</button>
       </div>
       <pre id="asciiOutput" aria-live="polite">Выбери картинку, чтобы увидеть ASCII-арт.</pre>
     </section>
