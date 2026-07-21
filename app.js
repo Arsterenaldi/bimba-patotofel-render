@@ -1,11 +1,28 @@
 const input = document.querySelector("#imageInput");
 const output = document.querySelector("#asciiOutput");
 const copyButton = document.querySelector("#copyButton");
+const widthRange = document.querySelector("#widthRange");
+const contrastRange = document.querySelector("#contrastRange");
+const brightnessRange = document.querySelector("#brightnessRange");
+const gammaRange = document.querySelector("#gammaRange");
+const invertToggle = document.querySelector("#invertToggle");
+const widthValue = document.querySelector("#widthValue");
+const contrastValue = document.querySelector("#contrastValue");
+const brightnessValue = document.querySelector("#brightnessValue");
+const gammaValue = document.querySelector("#gammaValue");
 
 const asciiRamp = " .:-=+*#%@";
-const maxWidth = 130;
 
 let latestAscii = "";
+let loadedImage = null;
+let p5Api = null;
+
+new p5((p) => {
+  p.setup = () => {
+    p.noCanvas();
+    p5Api = p;
+  };
+});
 
 input.addEventListener("change", async (event) => {
   const file = event.target.files?.[0];
@@ -19,11 +36,21 @@ input.addEventListener("change", async (event) => {
 
   try {
     const dataUrl = await readFileAsDataUrl(file);
-    renderAscii(dataUrl);
+    loadImage(dataUrl);
   } catch (error) {
     output.textContent = "Не получилось прочитать файл. Попробуй другую картинку.";
     console.error(error);
   }
+});
+
+[widthRange, contrastRange, brightnessRange, gammaRange, invertToggle].forEach((control) => {
+  control.addEventListener("input", () => {
+    updateControlLabels();
+
+    if (loadedImage) {
+      renderAscii();
+    }
+  });
 });
 
 copyButton.addEventListener("click", async () => {
@@ -49,30 +76,47 @@ function readFileAsDataUrl(file) {
   });
 }
 
-function renderAscii(dataUrl) {
-  const sketch = (p) => {
-    p.setup = () => {
-      p.noCanvas();
-      p.loadImage(
-        dataUrl,
-        (image) => {
-          const ascii = imageToAscii(p, image);
-          latestAscii = ascii;
-          output.textContent = ascii;
-          copyButton.disabled = false;
-        },
-        () => {
-          output.textContent = "Не получилось загрузить изображение.";
-        }
-      );
-    };
-  };
-
-  new p5(sketch);
+function loadImage(dataUrl) {
+  p5Api.loadImage(
+    dataUrl,
+    (image) => {
+      loadedImage = image;
+      renderAscii();
+    },
+    () => {
+      output.textContent = "Не получилось загрузить изображение.";
+    }
+  );
 }
 
-function imageToAscii(p, image) {
-  const targetWidth = Math.min(maxWidth, image.width);
+function renderAscii() {
+  const image = loadedImage.get();
+  const ascii = imageToAscii(image, getSettings());
+
+  latestAscii = ascii;
+  output.textContent = ascii;
+  copyButton.disabled = false;
+}
+
+function getSettings() {
+  return {
+    brightness: Number(brightnessRange.value),
+    contrast: Number(contrastRange.value) / 100,
+    gamma: Number(gammaRange.value) / 100,
+    invert: invertToggle.checked,
+    width: Number(widthRange.value),
+  };
+}
+
+function updateControlLabels() {
+  widthValue.textContent = widthRange.value;
+  contrastValue.textContent = `${contrastRange.value}%`;
+  brightnessValue.textContent = brightnessRange.value;
+  gammaValue.textContent = (Number(gammaRange.value) / 100).toFixed(2);
+}
+
+function imageToAscii(image, settings) {
+  const targetWidth = Math.min(settings.width, image.width);
   const charAspectCorrection = 0.5;
   const targetHeight = Math.max(
     1,
@@ -99,8 +143,8 @@ function imageToAscii(p, image) {
         continue;
       }
 
-      const brightness = (red + green + blue) / 3;
-      const rampIndex = Math.floor(p.map(brightness, 0, 255, asciiRamp.length - 1, 0));
+      const brightness = adjustBrightness((red + green + blue) / 3, settings);
+      const rampIndex = brightnessToRampIndex(brightness, settings.invert);
       row += asciiRamp[rampIndex];
     }
 
@@ -109,3 +153,24 @@ function imageToAscii(p, image) {
 
   return rows.join("\n");
 }
+
+function adjustBrightness(value, settings) {
+  const contrasted = (value - 128) * settings.contrast + 128 + settings.brightness;
+  const normalized = clamp(contrasted / 255, 0, 1);
+  const corrected = Math.pow(normalized, 1 / settings.gamma);
+
+  return corrected * 255;
+}
+
+function brightnessToRampIndex(brightness, invert) {
+  const normalized = clamp(brightness / 255, 0, 1);
+  const mapped = invert ? normalized : 1 - normalized;
+
+  return Math.round(mapped * (asciiRamp.length - 1));
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+updateControlLabels();

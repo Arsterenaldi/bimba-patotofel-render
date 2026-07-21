@@ -92,6 +92,65 @@ h1 {
   pointer-events: none;
 }
 
+.controls-card {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 20px;
+  padding: 18px;
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  background: rgba(19, 26, 48, 0.62);
+  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.26);
+  backdrop-filter: blur(18px);
+}
+
+.control {
+  display: grid;
+  gap: 10px;
+}
+
+.control label,
+.toggle {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.control label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.control span {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.control input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent-strong);
+  cursor: pointer;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 100%;
+  padding-top: 23px;
+  cursor: pointer;
+}
+
+.toggle input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
 .preview-card {
   overflow: hidden;
   border: 1px solid var(--card-border);
@@ -143,6 +202,14 @@ h1 {
   .app {
     width: min(100% - 20px, 1120px);
     padding: 32px 0;
+  }
+
+  .controls-card {
+    grid-template-columns: 1fr;
+  }
+
+  .toggle {
+    padding-top: 0;
   }
 
   .preview-header {

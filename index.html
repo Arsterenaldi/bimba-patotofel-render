@@ -23,6 +23,45 @@
       </label>
     </section>
 
+    <section class="controls-card" aria-label="Настройки ASCII рендера">
+      <div class="control">
+        <label for="widthRange">
+          Детализация
+          <span id="widthValue">130</span>
+        </label>
+        <input id="widthRange" type="range" min="50" max="220" value="130" step="5">
+      </div>
+
+      <div class="control">
+        <label for="contrastRange">
+          Контраст
+          <span id="contrastValue">100%</span>
+        </label>
+        <input id="contrastRange" type="range" min="50" max="180" value="100" step="5">
+      </div>
+
+      <div class="control">
+        <label for="brightnessRange">
+          Яркость
+          <span id="brightnessValue">0</span>
+        </label>
+        <input id="brightnessRange" type="range" min="-80" max="80" value="0" step="5">
+      </div>
+
+      <div class="control">
+        <label for="gammaRange">
+          Гамма
+          <span id="gammaValue">1.00</span>
+        </label>
+        <input id="gammaRange" type="range" min="50" max="220" value="100" step="5">
+      </div>
+
+      <label class="toggle">
+        <input id="invertToggle" type="checkbox">
+        Инвертировать символы
+      </label>
+    </section>
+
     <section class="preview-card">
       <div class="preview-header">
         <span>ASCII Preview</span>
