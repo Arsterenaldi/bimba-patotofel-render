@@ -53,6 +53,10 @@ const brailleAspectPercent = 62;
 let latestAscii = "";
 let loadedImage = null;
 let p5Api = null;
+let targetMouseX = 50;
+let targetMouseY = 18;
+let currentMouseX = targetMouseX;
+let currentMouseY = targetMouseY;
 
 new p5((p) => {
   p.setup = () => {
@@ -69,6 +73,7 @@ input.addEventListener("change", async (event) => {
   }
 
   output.textContent = "Обрабатываю картинку...";
+  output.classList.add("empty-state");
   copyButton.disabled = true;
 
   try {
@@ -76,6 +81,7 @@ input.addEventListener("change", async (event) => {
     loadImage(dataUrl);
   } catch (error) {
     output.textContent = "Не получилось прочитать файл. Попробуй другую картинку.";
+    output.classList.add("empty-state");
     console.error(error);
   }
 });
@@ -121,6 +127,11 @@ copyButton.addEventListener("click", async () => {
   }, 1200);
 });
 
+window.addEventListener("pointermove", (event) => {
+  targetMouseX = (event.clientX / window.innerWidth) * 100;
+  targetMouseY = (event.clientY / window.innerHeight) * 100;
+});
+
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -150,6 +161,7 @@ function renderAscii() {
 
   latestAscii = ascii;
   output.textContent = ascii;
+  output.classList.remove("empty-state");
   copyButton.disabled = false;
   updateExportHint();
 }
@@ -316,3 +328,20 @@ function formatForExport(ascii) {
 
 applyPlatformPreset();
 updateControlLabels();
+animateBackground();
+
+function animateBackground() {
+  currentMouseX += (targetMouseX - currentMouseX) * 0.08;
+  currentMouseY += (targetMouseY - currentMouseY) * 0.08;
+
+  document.documentElement.style.setProperty("--mouse-x", `${currentMouseX.toFixed(2)}%`);
+  document.documentElement.style.setProperty("--mouse-y", `${currentMouseY.toFixed(2)}%`);
+  document.documentElement.style.setProperty("--mouse-x-soft", `${(100 - currentMouseX * 0.35).toFixed(2)}%`);
+  document.documentElement.style.setProperty("--mouse-y-soft", `${(12 + currentMouseY * 0.42).toFixed(2)}%`);
+  document.documentElement.style.setProperty("--ascii-left-x", `${((currentMouseX - 50) * 0.16).toFixed(2)}px`);
+  document.documentElement.style.setProperty("--ascii-left-y", `${((currentMouseY - 50) * 0.12).toFixed(2)}px`);
+  document.documentElement.style.setProperty("--ascii-right-x", `${((50 - currentMouseX) * 0.12).toFixed(2)}px`);
+  document.documentElement.style.setProperty("--ascii-right-y", `${((50 - currentMouseY) * 0.09).toFixed(2)}px`);
+
+  window.requestAnimationFrame(animateBackground);
+}
