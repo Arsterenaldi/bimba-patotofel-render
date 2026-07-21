@@ -68,22 +68,7 @@ new p5((p) => {
 input.addEventListener("change", async (event) => {
   const file = event.target.files?.[0];
 
-  if (!file) {
-    return;
-  }
-
-  output.textContent = "Обрабатываю картинку...";
-  output.classList.add("empty-state");
-  copyButton.disabled = true;
-
-  try {
-    const dataUrl = await readFileAsDataUrl(file);
-    loadImage(dataUrl);
-  } catch (error) {
-    output.textContent = "Не получилось прочитать файл. Попробуй другую картинку.";
-    output.classList.add("empty-state");
-    console.error(error);
-  }
+  handleImageFile(file);
 });
 
 [widthRange, aspectRange, contrastRange, brightnessRange, gammaRange, invertToggle, solidCharsToggle, codeWrapToggle].forEach((control) => {
@@ -131,6 +116,69 @@ window.addEventListener("pointermove", (event) => {
   targetMouseX = (event.clientX / window.innerWidth) * 100;
   targetMouseY = (event.clientY / window.innerHeight) * 100;
 });
+
+window.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  document.body.classList.add("drag-over");
+});
+
+window.addEventListener("dragleave", (event) => {
+  if (event.relatedTarget === null) {
+    document.body.classList.remove("drag-over");
+  }
+});
+
+window.addEventListener("drop", (event) => {
+  event.preventDefault();
+  document.body.classList.remove("drag-over");
+  handleImageFile(findImageFile(event.dataTransfer?.files));
+});
+
+window.addEventListener("paste", (event) => {
+  const file = findImageFile(event.clipboardData?.files) ?? findImageItem(event.clipboardData?.items);
+
+  if (file) {
+    event.preventDefault();
+    handleImageFile(file);
+  }
+});
+
+async function handleImageFile(file) {
+  if (!file) {
+    return;
+  }
+
+  if (!file.type.startsWith("image/")) {
+    showStatus("Это не картинка. Нужен файл изображения.");
+    return;
+  }
+
+  showStatus("Обрабатываю картинку...");
+  copyButton.disabled = true;
+
+  try {
+    const dataUrl = await readFileAsDataUrl(file);
+    loadImage(dataUrl);
+  } catch (error) {
+    showStatus("Не получилось прочитать файл. Попробуй другую картинку.");
+    console.error(error);
+  }
+}
+
+function findImageFile(files) {
+  return Array.from(files ?? []).find((file) => file.type.startsWith("image/"));
+}
+
+function findImageItem(items) {
+  const imageItem = Array.from(items ?? []).find((item) => item.type.startsWith("image/"));
+
+  return imageItem?.getAsFile();
+}
+
+function showStatus(message) {
+  output.textContent = message;
+  output.classList.add("empty-state");
+}
 
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {

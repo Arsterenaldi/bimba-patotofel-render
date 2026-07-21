@@ -244,12 +244,46 @@ h1 {
 }
 
 .preview-card {
+  position: relative;
   overflow: hidden;
   border: 1px solid var(--card-border);
   border-radius: 28px;
   background: var(--card);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
   backdrop-filter: blur(18px);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.preview-card::after {
+  position: absolute;
+  inset: 12px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(255, 255, 255, 0.42);
+  border-radius: 22px;
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(124, 58, 237, 0.16);
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  opacity: 0;
+  pointer-events: none;
+  text-align: center;
+  text-shadow: 0 0 24px rgba(255, 255, 255, 0.28);
+  transition: opacity 180ms ease;
+  content: "Отпусти картинку здесь";
+}
+
+body.drag-over .preview-card {
+  border-color: rgba(167, 139, 250, 0.72);
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.22),
+    0 28px 90px rgba(124, 58, 237, 0.38);
+  transform: translateY(-2px);
+}
+
+body.drag-over .preview-card::after {
+  opacity: 1;
 }
 
 .preview-header {
